@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+<title>Project 3</title>
+<script>
+	  var canvas;
+	  var context;
+	  var shapes = []
+	  var timer;
+	  var timerTwo;
+	  var possibleShapes = ['semicircle', 'oval','smiley','rectangle','heart','pacman', 'icicle'];
+	  function Shape(x, y, color) {
+		this.x = x;
+		this.y = y;
+		this.size = Math.random()*10+5;
+		this.dx = Math.random()*6-4;
+		this.dy = Math.random()*6-4;
+		this.color = color;
+		this.shape = possibleShapes[Math.floor(Math.random()*possibleShapes.length)];
+	  }
+      function init() {
+        canvas = document.getElementById('canvas');
+        context = canvas.getContext("2d");
+ 
+        window.addEventListener('resize', resizeCanvas, false);
+        window.addEventListener('orientationchange', resizeCanvas, false);
+        resizeCanvas();
+		canvas.onclick = function(event) {
+			handleClick(event.clientX, event.clientY);
+		};
+		timer = setInterval(resizeCanvas, 40);
+		timerTwo = setInterval(newShape, 400);
+      }
+	  function newShape() {
+		var x = Math.random() * canvas.width;
+		var y = Math.random() * canvas.height;
+		var colors = ["white", "pink", "teal", "cyan", "grey", "violet"];
+		var color = colors[Math.floor(Math.random()*colors.length)];
+		shapes.push(new Shape(x, y, color));
+	  }
+	  function drawOval(oval) {
+	  	context.beginPath();
+  		context.ellipse(oval.x, oval.y, 50, 75, 45 * Math.PI/180, 0, 2 * Math.PI);
+		context.fillStyle = oval.color;
+		context.fill();
+	}
+	  function drawSmiley(smiley) {
+	  	context.beginPath();
+    	context.arc(smiley.x,smiley.y,50,0,Math.PI*2,true); // Outer circle
+    	context.moveTo(smiley.x,smiley.y);
+    	context.arc(smiley.x,smiley.y,35,0,Math.PI,false);  // Mouth (clockwise)
+    	context.moveTo(smiley.x,smiley.y);
+    	context.arc(smiley.x,smiley.y,5,0,Math.PI*2,true);  // Left eye
+    	context.moveTo(smiley.x,smiley.y, 65);
+    	context.arc(smiley.x,smiley.y,5,0,Math.PI*2,true);  // Right eye
+ 		context.fillStyle = smiley.color;
+ 		context.fill();
+	  }
+	  function drawPacman(pacman) { //or a moon with a crater
+	  	context.beginPath();
+		context.arc(pacman.x,pacman.y,50,Math.PI*2.1,Math.PI*1.8, false);
+		context.fillStyle = pacman.color;
+		context.fill();
+	  }
+      function drawRectangle(rectangle){
+      	context.beginPath();
+      	context.rect(rectangle.x, rectangle.y, 100, 50);
+      	context.fillStyle = rectangle.color;
+      	context.fill();
+      }
+      function drawSemicircle(semicircle) {
+      	context.beginPath();
+		context.arc(semicircle.x, semicircle.y, 60, 0, Math.PI, true);
+		context.fillStyle = semicircle.color;
+		context.fill();
+      }
+	  function drawHeart(heart) {
+	  	context.beginPath();
+      	context.moveTo(heart.x, heart.y);
+   		context.bezierCurveTo(75,37,70,25,50,25);
+    	context.bezierCurveTo(20,25,20,62.5,20,62.5);
+    	context.bezierCurveTo(20,80,40,102,75,120);
+    	context.bezierCurveTo(110,102,130,80,130,62.5);
+    	context.bezierCurveTo(130,62.5,130,25,100,25);
+    	context.bezierCurveTo(85,25,75,37,75,40);
+    	context.fill();
+ 	 }
+ 	 function drawIcicle(icicle) { //was supposed to be a diamond lol
+ 		context.beginPath();
+		context.moveTo(icicle.x+icicle.size,icicle.y);
+		context.lineTo(icicle.x,icicle.y);
+		context.lineTo(icicle.y, icicle.x);
+		context.lineTo(icicle.x+icicle.size,icicle.y);
+		context.fillStyle = icicle.color;
+		context.closePath();
+		context.fill();
+		}
+
+	  function drawText() {
+    	context.fillStyle = 'white';
+    	context.font = 'bold 1em Helvetica';
+    	context.textAlign = 'right';
+    	context.fillText('abstract art with disco ball heart', canvas.width-100, canvas.height-80);
+	}
+      function resizeCanvas() {
+        canvas.width = window.innerWidth-20;
+        canvas.height = window.innerHeight-20;
+		fillBackgroundColor();
+		for (var i=0; i<shapes.length; i++) {
+			if (shapes[i].shape == 'oval') {
+				drawOval(shapes[i]);
+			} else if (shapes[i].shape == 'semicircle') {
+				drawSemicircle(shapes[i]);
+			} else if (shapes[i].shape == 'rectangle') {
+				drawRectangle(shapes[i]);
+			} else if (shapes[i].shape == 'heart') {
+				drawHeart(shapes[i]);
+			} else if (shapes[i].shape == 'smiley') {
+				drawSmiley(shapes[i]);
+			} else if (shapes[i].shape == 'pacman') {
+				drawPacman(shapes[i]);
+			} else if (shapes[i].shape == 'icicle') {
+				drawIcicle(shapes[i]);
+			}
+			if (shapes[i].x + shapes[i].dx > canvas.width || shapes[i].x + shapes[i].dx < 0)
+				shapes[i].dx = -shapes[i].dx;
+			if (shapes[i].y + shapes[i].dy > canvas.height || shapes[i].y + shapes[i].dy < 0)
+				shapes[i].dy = -shapes[i].dy;
+				shapes[i].x += shapes[i].dx;
+				shapes[i].y += shapes[i].dy;
+		}
+		drawText();		 
+      }
+	  function fillBackgroundColor() {
+		 context.fillStyle = 'black';
+		 context.fillRect(0, 0, canvas.width, canvas.height);
+	}
+	function degreesToRadians(degrees) {
+		return (degrees * Math.PI)/180;
+	}
+	window.onload = init;
+</script>
+</head>
+<body>
+<canvas id='canvas' width=600 height=600></canvas>
+</body>	  
